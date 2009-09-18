@@ -45,7 +45,7 @@ def _fileno_can_read(fileno):
 
 
 CAPABILITIES = ["multi_ack", "side-band-64k", "ofs-delta"]
-
+USE_GIT_BINARIES = False
 
 class GitClient(object):
     """Git smart server client.
@@ -219,9 +219,17 @@ class SubprocessGitClient(GitClient):
         self._kwargs = kwargs
 
     def _connect(self, service, *args, **kwargs):
-        if os.name == 'nt':
-            service += '.bat'
-        argv = [service] + list(args)
+        if USE_GIT_BINARIES:
+            # invoke as 'git update-pack', instead of
+            # git-update-pack - this is more general
+            # (ie, poor windows folks don't have git-update-pack)
+            serviceSplit = service.split('-')
+            if serviceSplit[0] in ('dul', 'git'):
+                argv = ['git', '-'.join(serviceSplit[1:])] + list(args)
+        if argv is None:
+            if os.name == 'nt':
+                service += '.bat'
+            argv = [service] + list(args)
         self.proc = subprocess.Popen(argv, bufsize=0,
                                 stdin=subprocess.PIPE,
                                 stdout=subprocess.PIPE)

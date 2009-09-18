@@ -45,7 +45,7 @@ def _fileno_can_read(fileno):
 
 
 CAPABILITIES = ["multi_ack", "side-band-64k", "ofs-delta"]
-USE_GIT_BINARIES = False
+USE_GIT_BINARIES = True
 
 class GitClient(object):
     """Git smart server client.

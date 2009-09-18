@@ -219,6 +219,8 @@ class SubprocessGitClient(GitClient):
         self._kwargs = kwargs
 
     def _connect(self, service, *args, **kwargs):
+        if os.name == 'nt':
+            service += '.bat'
         argv = [service] + list(args)
         self.proc = subprocess.Popen(argv, bufsize=0,
                                 stdin=subprocess.PIPE,
@@ -238,7 +240,7 @@ class SubprocessGitClient(GitClient):
         :param generate_pack_contents: Function that returns an iterator over 
             objects to send
         """
-        client = self._connect("git-receive-pack", path)
+        client = self._connect("dul-receive-pack", path)
         return client.send_pack(path, changed_refs, generate_pack_contents)
 
     def fetch_pack(self, path, determine_wants, graph_walker, pack_data, 
@@ -252,7 +254,7 @@ class SubprocessGitClient(GitClient):
         :param pack_data: Function that can write pack data
         :param progress: Function that can write progress texts
         """
-        client = self._connect("git-upload-pack", path)
+        client = self._connect("dul-upload-pack", path)
         return client.fetch_pack(path, determine_wants, graph_walker, pack_data,
                                  progress)
 
